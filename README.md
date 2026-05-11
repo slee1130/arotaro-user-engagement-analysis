@@ -75,7 +75,3 @@ Deeper conversations improve satisfaction, but overly long interactions may lead
 - Initial user experience is strong, but retention can be improved
 - Drop-off occurs in a meaningful portion of sessions
 - There is an optimal conversation length for maximizing satisfaction
-
----
-
-## Project Structure
