@@ -66,9 +66,9 @@ Deeper conversations improve satisfaction, but overly long interactions may lead
 ---
 
 ## Dashboard
-## Dashboard
 
-![Arotaro User Engagement Dashboard](dashboard.png)
+<img width="1199" height="842" alt="dashboard" src="https://github.com/user-attachments/assets/4cac9488-f062-4798-b3bf-f04d9b23928d" />
+
 
 ---
 
