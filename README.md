@@ -66,7 +66,9 @@ Deeper conversations improve satisfaction, but overly long interactions may lead
 ---
 
 ## Dashboard
-(Insert Tableau screenshot here)
+## Dashboard
+
+![Arotaro User Engagement Dashboard](dashboard.png)
 
 ---
 
