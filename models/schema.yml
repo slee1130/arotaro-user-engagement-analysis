@@ -1,0 +1,71 @@
+version: 2
+
+models:
+  - name: stg_sessions
+    description: "Cleaned and standardized conversation session data from Arotaro"
+    columns:
+      - name: session_id
+        description: "Primary key"
+        tests:
+          - unique
+          - not_null
+      - name: user_id
+        tests:
+          - not_null
+      - name: status
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['SESSION_END', 'WRAP_UP', 'COUNSELLING', 'QUESTIONING', 'START_CHAT', 'INTRO_NEW_USER', 'INTRO_RECURRING', 'CARD_SPREAD']
+      - name: topic
+        tests:
+          - accepted_values:
+              values: ['relationship', 'career', 'family', 'anxiety', 'general', 'self-growth']
+
+  - name: stg_messages
+    description: "Cleaned conversation messages with human/AI flag"
+    columns:
+      - name: message_id
+        tests:
+          - unique
+          - not_null
+      - name: session_id
+        tests:
+          - not_null
+      - name: conversant
+        tests:
+          - accepted_values:
+              values: ['HUMAN', 'AI']
+
+  - name: stg_users
+    description: "User profiles joined with device information"
+    columns:
+      - name: user_id
+        tests:
+          - unique
+          - not_null
+
+  - name: fct_session_metrics
+    description: "One row per session — message counts, satisfaction, engagement score"
+    columns:
+      - name: session_id
+        tests:
+          - unique
+          - not_null
+      - name: engagement_score
+        description: "Composite score: 50% duration + 30% message count + 20% satisfaction"
+
+  - name: fct_user_retention
+    description: "One row per user — retention, completion rate, user type"
+    columns:
+      - name: user_id
+        tests:
+          - unique
+          - not_null
+      - name: user_type
+        tests:
+          - accepted_values:
+              values: ['new', 'returning']
+
+  - name: mart_engagement_summary
+    description: "Final reporting mart — topic-level engagement for Tableau dashboards"

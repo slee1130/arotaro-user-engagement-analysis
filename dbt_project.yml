@@ -1,0 +1,22 @@
+name: 'arotaro'
+version: '1.0.0'
+config-version: 2
+
+profile: 'arotaro'
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  arotaro:
+    staging:
+      +materialized: view
+    facts:
+      +materialized: table
+    marts:
+      +materialized: table

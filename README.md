@@ -1,79 +1,143 @@
 # Arotaro User Engagement & Retention Analysis
 
 ## Overview
-This project analyzes user behavior and engagement patterns in an AI-based emotional support application (Arotaro).
 
-The goal of this analysis is to understand what drives user engagement, retention, and satisfaction, and to identify opportunities to improve the overall user experience.
+End-to-end analytics engineering project built on top of **Arotaro**, an AI-based emotional support application with 1,000+ real users.
 
----
-
-## Problem Statement
-How do users engage with an AI-based emotional support app, and what factors drive retention and session length?
+This project extends the original Tableau analysis by introducing a full **dbt data modeling layer**, transforming raw application data into clean, testable, and documented analytics models.
 
 ---
 
-## Dataset
-Synthetic dataset including:
-- User sessions
-- Session duration
-- Message count
-- Satisfaction score
-- User type (returning vs new)
-- Drop-off indicator
-- Conversation topic
+## Architecture
+
+```
+Raw Seed Data (CSV)
+        │
+        ▼
+┌─────────────────────┐
+│   Staging Layer     │  stg_sessions, stg_messages, stg_users
+│   (dbt views)       │  → clean, rename, cast types
+└────────┬────────────┘
+         │
+         ▼
+┌─────────────────────┐
+│    Facts Layer      │  fct_session_metrics, fct_user_retention
+│    (dbt tables)     │  → aggregate, join, business logic
+└────────┬────────────┘
+         │
+         ▼
+┌─────────────────────┐
+│    Marts Layer      │  mart_engagement_summary
+│    (dbt tables)     │  → final reporting models for Tableau
+└────────┬────────────┘
+         │
+         ▼
+  Tableau Dashboard  +  Pandas Analysis (Jupyter)
+```
 
 ---
 
 ## Tools Used
-- Tableau (data visualization)
-- Excel / CSV
-- Basic data analysis techniques
+
+| Tool        | Purpose                            |
+|-------------|------------------------------------|
+| **dbt**     | Data modeling, testing, documentation |
+| **Python**  | Mock data generation               |
+| **Pandas**  | Exploratory data analysis          |
+| **Tableau** | Dashboard & visualization          |
+| **SQL**     | All transformation logic           |
 
 ---
 
-## Key Analysis & Insights
+## Project Structure
 
-### 1. Engagement by Topic
-Users discussing career-related topics showed the longest average session duration (~19 minutes), followed by relationship topics (~17 minutes), while general topics had the lowest engagement.
-
-👉 Insight:
-Specific and emotionally meaningful topics drive higher engagement.
-
----
-
-### 2. Returning vs New Users
-There is no significant difference in session duration between returning and new users.
-
-👉 Insight:
-The product delivers a strong initial experience, but additional strategies may be needed to improve long-term retention.
-
----
-
-### 3. Drop-off Rate
-Approximately 20% of sessions resulted in drop-off, while ~80% remained engaged.
-
-👉 Insight:
-Overall engagement is strong, but reducing early drop-off presents an opportunity for improvement.
-
----
-
-### 4. Message Count vs Satisfaction
-User satisfaction generally increases as message count grows, but becomes inconsistent at higher message counts.
-
-👉 Insight:
-Deeper conversations improve satisfaction, but overly long interactions may lead to fatigue.
+```
+arotaro/
+├── seeds/                          # Mock data CSVs (based on real schema)
+│   ├── concerned_users.csv
+│   ├── user_devices.csv
+│   ├── conversation_sessions.csv
+│   └── conversation_messages.csv
+│
+├── models/
+│   ├── staging/                    # Clean raw data
+│   │   ├── stg_sessions.sql
+│   │   ├── stg_messages.sql
+│   │   └── stg_users.sql
+│   ├── facts/                      # Business logic
+│   │   ├── fct_session_metrics.sql
+│   │   └── fct_user_retention.sql
+│   └── marts/                      # Reporting layer
+│       └── mart_engagement_summary.sql
+│
+├── analyses/
+│   └── engagement_analysis.py      # Pandas EDA
+│
+├── generate_mock_data.py           # Synthetic data generator
+├── dbt_project.yml
+└── models/schema.yml               # dbt tests + documentation
+```
 
 ---
 
-## Dashboard
+## Key Findings
 
-<img width="1199" height="842" alt="dashboard" src="https://github.com/user-attachments/assets/4cac9488-f062-4798-b3bf-f04d9b23928d" />
+### 1. Topic-Level Engagement
+| Topic        | Avg Duration | Avg Messages | Drop-off Rate |
+|--------------|-------------|--------------|---------------|
+| Career       | 19.2 min    | 12.5         | 20%           |
+| Relationship | 17.0 min    | 11.4         | 19%           |
+| Anxiety      | 16.2 min    | 10.9         | 23%           |
+| General      | 12.4 min    | 10.0         | 22%           |
 
+→ **Career and relationship topics drive the highest engagement**
+
+### 2. Retention
+- Overall drop-off rate: **~21%** (80% engaged)
+- Returning users (3+ sessions): **57%** of user base
+- Returning users show marginally higher completion rates (79.7% vs 77.7%)
+
+### 3. Satisfaction
+- Satisfaction generally increases with message count
+- Avg satisfaction score: **4.0 / 5.0**
 
 ---
 
-## Key Takeaways
-- Engagement is driven by topic relevance and emotional depth
-- Initial user experience is strong, but retention can be improved
-- Drop-off occurs in a meaningful portion of sessions
-- There is an optimal conversation length for maximizing satisfaction
+## dbt Models
+
+### Staging
+- `stg_sessions` — cleans session data, calculates duration in minutes, flags completed sessions
+- `stg_messages` — standardizes messages, adds human/AI flag
+- `stg_users` — joins user profiles with device info
+
+### Facts
+- `fct_session_metrics` — one row per session; message counts, satisfaction, composite engagement score
+- `fct_user_retention` — one row per user; retention metrics, user type (new vs returning), days active
+
+### Marts
+- `mart_engagement_summary` — final reporting layer aggregated by topic; feeds Tableau dashboard
+
+---
+
+## dbt Tests
+All models include schema tests:
+- `unique` + `not_null` on all primary keys
+- `accepted_values` on status, topic, conversant, user_type columns
+- Referential integrity between sessions and messages
+
+---
+
+## How to Run
+
+```bash
+# Generate mock data
+python generate_mock_data.py
+
+# Run dbt models
+dbt seed
+dbt run
+dbt test
+
+# Run Pandas analysis
+python analyses/engagement_analysis.py
+```
